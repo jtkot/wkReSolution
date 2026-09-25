@@ -9,6 +9,7 @@
 #define W2_15 1
 #define WWP_10 -1
 #define WWP_11 -2
+#define WWP_11_PL -3
 
 typedef void(*PFVOID)();
 typedef struct

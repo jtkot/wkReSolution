@@ -43,12 +43,15 @@ PFVOID RenderGame;
 char CheckVersion()
 {
 	DWORD PETime = EXE.FH->TimeDateStamp;
+	DWORD Entry = EXE.OPT->AddressOfEntryPoint;
 	if (PETime >= 0x352118A5 && PETime <= 0x352118FD)
 		return Version = W2_15;
 	else if (PETime >= 0x3AFFFAAB && PETime <= 0x3AFFFBB1)
 		return Version = WWP_11;
 	else if (PETime >= 0x3A92A062 && PETime <= 0x3A92A27E)
 		return Version = WWP_10;
+	else if (Entry == 0x1A5A76)
+		return Version = WWP_11_PL;
 	return Version = 0;
 }
 
@@ -224,6 +227,32 @@ void PrepareAddresses()
 
 		InsertJump((PVOID)EXE.Offset(0x105302), 6, &ProcessWWPGameEnd);
 		InsertJump((PVOID)EXE.Offset(0x106537), 5, &ProcessDDStartup);
+	}
+	else if (Version == WWP_11_PL)
+	{
+		GlobalEatLimit = 768;
+		WWPDDinit = EXE.Offset(0x11C971);
+		WWPDDterm = EXE.Offset(0x1062BC);
+		WWPGameEndCont = EXE.Offset(0x105088);
+		pWormsWnd = (HWND*)EXE.Offset(0x2333B0);
+		pT17Wnd   = (HWND*)EXE.Offset(0x3F79F8);
+		wwpDD = (LPDIRECTDRAW2*)EXE.Offset(0x3F7984);
+		WWPCurPosStruct = (PVOID*)EXE.Offset(0x3F8AF4);
+		pWWPInGame = (BOOL*)EXE.Offset(0x7F9418);
+	//	RenderGame = (PFVOID)PE.Offset(0x104F6F); //dont enable
+
+		PatchMemByte(EXE.Offset (0x26BEE), 0xEB); //always set the resolution below
+		PatchMemDword(EXE.Offset(0x26C04), SWidth); //settings swidth
+		PatchMemDword(EXE.Offset(0x26C11), SHeight); //settings sheight
+		PatchMemDword(EXE.Offset(0x105D9D), 0x7FFF); //change max width limit to 32767
+		PatchMemDword(EXE.Offset(0x105DBF), 0x7FFF); //change max height limit to 32767
+
+		InsertJump((PVOID)EXE.Offset(0x122F89), 6, &ProcessWWPWater, IJ_CALL); //WaterInit
+		InsertJump((PVOID)EXE.Offset(0x18B786), 6, &ProcessWWPWater, IJ_CALL); //WaterLastInit
+		InsertJump((PVOID)EXE.Offset(0x18EC7B), 6, &ProcessWWPWater, IJ_CALL); //WaterRise
+
+		InsertJump((PVOID)EXE.Offset(0x105082), 6, &ProcessWWPGameEnd);
+		InsertJump((PVOID)EXE.Offset(0x1062B7), 5, &ProcessDDStartup);
 	}
 	else if (Version == WWP_10)
 	{

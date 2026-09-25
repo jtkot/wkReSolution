@@ -61,7 +61,7 @@ BOOL APIENTRY DllMain(HMODULE, DWORD dwReason, LPVOID)
 		{
 			MessageBoxA(NULL,
 				"Sorry, but your game version is not compatible with this wkReSolution HD module. "
-				"Please check that the game is patched to one of either:\nWWP: 1.01 (EU SP1) or 1.00\nWorms 2: 1.05", "ReSolution error",
+				"Please check that the game is patched to one of either:\nWWP: 1.01 (EU SP1/PL SP1) or 1.00\nWorms 2: 1.05", "ReSolution error",
 				MB_OK | MB_ICONERROR);
 			return 1;
 		}
